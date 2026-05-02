@@ -1,10 +1,10 @@
 public class QuantityMeasurementApp {
 
-    static class QuantityLength {
+    static class QuantityWeight {
         private final double value;
-        private final LengthUnit unit;
+        private final WeightUnit unit;
 
-        public QuantityLength(double value, LengthUnit unit) {
+        public QuantityWeight(double value, WeightUnit unit) {
             if (unit == null)
                 throw new IllegalArgumentException("Unit cannot be null");
             if (!Double.isFinite(value))
@@ -18,31 +18,31 @@ public class QuantityMeasurementApp {
             return value;
         }
 
-        public LengthUnit getUnit() {
+        public WeightUnit getUnit() {
             return unit;
         }
 
         public double toBaseUnit() {
-            return unit.convertToBaseUnit(value);
+            return unit.convertToBaseUnit(value); // kg
         }
 
-        public QuantityLength convertTo(LengthUnit targetUnit) {
+        public QuantityWeight convertTo(WeightUnit targetUnit) {
             if (targetUnit == null)
                 throw new IllegalArgumentException("Target unit cannot be null");
 
             double base = this.toBaseUnit();
             double converted = targetUnit.convertFromBaseUnit(base);
 
-            return new QuantityLength(converted, targetUnit);
+            return new QuantityWeight(converted, targetUnit);
         }
 
-        public QuantityLength add(QuantityLength other) {
+        public QuantityWeight add(QuantityWeight other) {
             return add(this, other, this.unit);
         }
 
-        public static QuantityLength add(QuantityLength q1,
-                                         QuantityLength q2,
-                                         LengthUnit targetUnit) {
+        public static QuantityWeight add(QuantityWeight q1,
+                                         QuantityWeight q2,
+                                         WeightUnit targetUnit) {
 
             if (q1 == null || q2 == null)
                 throw new IllegalArgumentException("Operands cannot be null");
@@ -53,7 +53,7 @@ public class QuantityMeasurementApp {
             double sumBase = q1.toBaseUnit() + q2.toBaseUnit();
             double result = targetUnit.convertFromBaseUnit(sumBase);
 
-            return new QuantityLength(result, targetUnit);
+            return new QuantityWeight(result, targetUnit);
         }
 
         @Override
@@ -61,7 +61,7 @@ public class QuantityMeasurementApp {
             if (this == obj) return true;
             if (obj == null || getClass() != obj.getClass()) return false;
 
-            QuantityLength other = (QuantityLength) obj;
+            QuantityWeight other = (QuantityWeight) obj;
             return Math.abs(this.toBaseUnit() - other.toBaseUnit()) < 1e-6;
         }
 
@@ -74,5 +74,23 @@ public class QuantityMeasurementApp {
         public String toString() {
             return value + " " + unit;
         }
+    }
+
+    // 🔥 MAIN METHOD (UC9 DEMO)
+    public static void main(String[] args) {
+
+        QuantityWeight kg = new QuantityWeight(1.0, WeightUnit.KILOGRAM);
+        QuantityWeight gram = new QuantityWeight(1000.0, WeightUnit.GRAM);
+
+        System.out.println("Equality: " + kg.equals(gram));
+
+        System.out.println("Convert 1kg → gram: " +
+                kg.convertTo(WeightUnit.GRAM));
+
+        System.out.println("Add (kg target): " +
+                QuantityWeight.add(kg, gram, WeightUnit.KILOGRAM));
+
+        System.out.println("Add (gram target): " +
+                QuantityWeight.add(kg, gram, WeightUnit.GRAM));
     }
 }
