@@ -10,23 +10,19 @@ public enum VolumeUnit implements IMeasurable {
         this.factor = factor;
     }
 
-    @Override
     public double getConversionFactor() {
         return factor;
     }
 
-    @Override
     public double convertToBaseUnit(double value) {
         return value * factor;
     }
 
-    @Override
     public double convertFromBaseUnit(double baseValue) {
         return baseValue / factor;
     }
 
-    @Override
     public String getUnitName() {
-        return this.name();
+        return name();
     }
 }

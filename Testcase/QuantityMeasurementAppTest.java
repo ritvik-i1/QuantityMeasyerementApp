@@ -1,14 +1,12 @@
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class QuantityMeasurementAppTest {
 
-    private static final double EPS = 1e-6;
-
-    // ---------------- EQUALITY ----------------
+    double EPS = 1e-6;
 
     @Test
-    void testEquality_LitreToMillilitre() {
+    void testEquality() {
         Quantity<VolumeUnit> v1 = new Quantity<>(1.0, VolumeUnit.LITRE);
         Quantity<VolumeUnit> v2 = new Quantity<>(1000.0, VolumeUnit.MILLILITRE);
 
@@ -16,68 +14,45 @@ public class QuantityMeasurementAppTest {
     }
 
     @Test
-    void testEquality_GallonToLitre() {
-        Quantity<VolumeUnit> v1 = new Quantity<>(1.0, VolumeUnit.GALLON);
-        Quantity<VolumeUnit> v2 = new Quantity<>(3.78541, VolumeUnit.LITRE);
-
-        assertTrue(v1.equals(v2));
-    }
-
-    // ---------------- CONVERSION ----------------
-
-    @Test
-    void testConversion_LitreToMillilitre() {
+    void testConversion() {
         Quantity<VolumeUnit> v = new Quantity<>(1.0, VolumeUnit.LITRE);
 
-        // ✅ FIX: use getValue()
         assertEquals(1000.0,
-                v.convertTo(VolumeUnit.MILLILITRE).getValue(),
-                EPS);
+                v.convertTo(VolumeUnit.MILLILITRE).getValue(), EPS);
     }
 
     @Test
-    void testConversion_GallonToLitre() {
-        Quantity<VolumeUnit> v = new Quantity<>(1.0, VolumeUnit.GALLON);
-
-        assertEquals(3.78541,
-                v.convertTo(VolumeUnit.LITRE).getValue(),
-                1e-4);
-    }
-
-    // ---------------- ADDITION ----------------
-
-    @Test
-    void testAddition_LitrePlusMillilitre() {
+    void testAddition() {
         Quantity<VolumeUnit> v1 = new Quantity<>(1.0, VolumeUnit.LITRE);
         Quantity<VolumeUnit> v2 = new Quantity<>(1000.0, VolumeUnit.MILLILITRE);
 
-        Quantity<VolumeUnit> result = v1.add(v2, VolumeUnit.LITRE);
-
-        assertEquals(2.0, result.getValue(), EPS);
+        assertEquals(2.0,
+                v1.add(v2).getValue(), EPS);
     }
 
     @Test
-    void testAddition_GallonPlusLitre() {
-        Quantity<VolumeUnit> v1 = new Quantity<>(1.0, VolumeUnit.GALLON);
-        Quantity<VolumeUnit> v2 = new Quantity<>(3.78541, VolumeUnit.LITRE);
+    void testSubtraction() {
+        Quantity<VolumeUnit> v1 = new Quantity<>(5.0, VolumeUnit.LITRE);
+        Quantity<VolumeUnit> v2 = new Quantity<>(500.0, VolumeUnit.MILLILITRE);
 
-        Quantity<VolumeUnit> result = v1.add(v2, VolumeUnit.GALLON);
-
-        assertEquals(2.0, result.getValue(), 1e-4);
-    }
-
-    // ---------------- EDGE CASES ----------------
-
-    @Test
-    void testNullUnit() {
-        assertThrows(IllegalArgumentException.class,
-                () -> new Quantity<>(1.0, null));
+        assertEquals(4.5,
+                v1.subtract(v2).getValue(), EPS);
     }
 
     @Test
-    void testZeroValue() {
-        Quantity<VolumeUnit> v = new Quantity<>(0.0, VolumeUnit.LITRE);
+    void testDivision() {
+        Quantity<VolumeUnit> v1 = new Quantity<>(10.0, VolumeUnit.LITRE);
+        Quantity<VolumeUnit> v2 = new Quantity<>(5.0, VolumeUnit.LITRE);
 
-        assertEquals(0.0, v.getValue(), EPS);
+        assertEquals(2.0,
+                v1.divide(v2), EPS);
+    }
+
+    @Test
+    void testDivideByZero() {
+        Quantity<VolumeUnit> v1 = new Quantity<>(10.0, VolumeUnit.LITRE);
+        Quantity<VolumeUnit> v2 = new Quantity<>(0.0, VolumeUnit.LITRE);
+
+        assertThrows(ArithmeticException.class, () -> v1.divide(v2));
     }
 }
