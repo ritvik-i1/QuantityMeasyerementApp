@@ -4,69 +4,73 @@ import static org.junit.jupiter.api.Assertions.*;
 public class QuantityMeasurementAppTest {
 
     @Test
-    void testEquality_FeetToFeet_SameValue() {
+    void testEquality_YardToYard_SameValue() {
         var q1 = new QuantityMeasurementApp.QuantityLength(1.0,
-                QuantityMeasurementApp.LengthUnit.FEET);
+                QuantityMeasurementApp.LengthUnit.YARDS);
         var q2 = new QuantityMeasurementApp.QuantityLength(1.0,
+                QuantityMeasurementApp.LengthUnit.YARDS);
+
+        assertTrue(q1.equals(q2));
+    }
+
+    @Test
+    void testEquality_YardToFeet_EquivalentValue() {
+        var q1 = new QuantityMeasurementApp.QuantityLength(1.0,
+                QuantityMeasurementApp.LengthUnit.YARDS);
+        var q2 = new QuantityMeasurementApp.QuantityLength(3.0,
                 QuantityMeasurementApp.LengthUnit.FEET);
 
         assertTrue(q1.equals(q2));
     }
 
     @Test
-    void testEquality_InchToInch_SameValue() {
+    void testEquality_YardToInches_EquivalentValue() {
         var q1 = new QuantityMeasurementApp.QuantityLength(1.0,
+                QuantityMeasurementApp.LengthUnit.YARDS);
+        var q2 = new QuantityMeasurementApp.QuantityLength(36.0,
                 QuantityMeasurementApp.LengthUnit.INCH);
+
+        assertTrue(q1.equals(q2));
+    }
+
+    @Test
+    void testEquality_CentimeterToInch_EquivalentValue() {
+        var q1 = new QuantityMeasurementApp.QuantityLength(1.0,
+                QuantityMeasurementApp.LengthUnit.CENTIMETERS);
+        var q2 = new QuantityMeasurementApp.QuantityLength(0.393701,
+                QuantityMeasurementApp.LengthUnit.INCH);
+
+        assertTrue(q1.equals(q2));
+    }
+
+    @Test
+    void testEquality_CentimeterToFeet_NotEqual() {
+        var q1 = new QuantityMeasurementApp.QuantityLength(1.0,
+                QuantityMeasurementApp.LengthUnit.CENTIMETERS);
         var q2 = new QuantityMeasurementApp.QuantityLength(1.0,
-                QuantityMeasurementApp.LengthUnit.INCH);
-
-        assertTrue(q1.equals(q2));
-    }
-
-    @Test
-    void testEquality_FeetToInch_EquivalentValue() {
-        var q1 = new QuantityMeasurementApp.QuantityLength(1.0,
-                QuantityMeasurementApp.LengthUnit.FEET);
-        var q2 = new QuantityMeasurementApp.QuantityLength(12.0,
-                QuantityMeasurementApp.LengthUnit.INCH);
-
-        assertTrue(q1.equals(q2));
-    }
-
-    @Test
-    void testEquality_InchToFeet_EquivalentValue() {
-        var q1 = new QuantityMeasurementApp.QuantityLength(12.0,
-                QuantityMeasurementApp.LengthUnit.INCH);
-        var q2 = new QuantityMeasurementApp.QuantityLength(1.0,
-                QuantityMeasurementApp.LengthUnit.FEET);
-
-        assertTrue(q1.equals(q2));
-    }
-
-    @Test
-    void testEquality_FeetToFeet_DifferentValue() {
-        var q1 = new QuantityMeasurementApp.QuantityLength(1.0,
-                QuantityMeasurementApp.LengthUnit.FEET);
-        var q2 = new QuantityMeasurementApp.QuantityLength(2.0,
                 QuantityMeasurementApp.LengthUnit.FEET);
 
         assertFalse(q1.equals(q2));
     }
 
     @Test
-    void testEquality_InchToInch_DifferentValue() {
-        var q1 = new QuantityMeasurementApp.QuantityLength(1.0,
-                QuantityMeasurementApp.LengthUnit.INCH);
-        var q2 = new QuantityMeasurementApp.QuantityLength(2.0,
+    void testEquality_MultiUnit_Transitive() {
+        var yard = new QuantityMeasurementApp.QuantityLength(1.0,
+                QuantityMeasurementApp.LengthUnit.YARDS);
+        var feet = new QuantityMeasurementApp.QuantityLength(3.0,
+                QuantityMeasurementApp.LengthUnit.FEET);
+        var inch = new QuantityMeasurementApp.QuantityLength(36.0,
                 QuantityMeasurementApp.LengthUnit.INCH);
 
-        assertFalse(q1.equals(q2));
+        assertTrue(yard.equals(feet));
+        assertTrue(feet.equals(inch));
+        assertTrue(yard.equals(inch));
     }
 
     @Test
     void testEquality_SameReference() {
-        var q = new QuantityMeasurementApp.QuantityLength(1.0,
-                QuantityMeasurementApp.LengthUnit.FEET);
+        var q = new QuantityMeasurementApp.QuantityLength(2.0,
+                QuantityMeasurementApp.LengthUnit.YARDS);
 
         assertTrue(q.equals(q));
     }
