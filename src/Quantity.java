@@ -23,7 +23,50 @@ public class Quantity<U extends IMeasurable> {
         return unit;
     }
 
-    // ---------------- EQUALS ----------------
+    // ================= ENUM =================
+    private enum Operation {
+        ADD {
+            double apply(double a, double b) { return a + b; }
+        },
+        SUBTRACT {
+            double apply(double a, double b) { return a - b; }
+        },
+        DIVIDE {
+            double apply(double a, double b) {
+                if (b == 0) throw new ArithmeticException("Divide by zero");
+                return a / b;
+            }
+        };
+
+        abstract double apply(double a, double b);
+    }
+
+    // ================= VALIDATION =================
+    private void validate(Quantity<U> other, U targetUnit, boolean needTarget) {
+
+        if (other == null)
+            throw new IllegalArgumentException("Other cannot be null");
+
+        if (this.unit.getClass() != other.unit.getClass())
+            throw new IllegalArgumentException("Different measurement categories");
+
+        if (!Double.isFinite(other.value))
+            throw new IllegalArgumentException("Invalid other value");
+
+        if (needTarget && targetUnit == null)
+            throw new IllegalArgumentException("Target unit cannot be null");
+    }
+
+    // ================= CORE HELPER =================
+    private double performBaseArithmetic(Quantity<U> other, Operation op) {
+
+        double base1 = this.unit.convertToBaseUnit(this.value);
+        double base2 = other.unit.convertToBaseUnit(other.value);
+
+        return op.apply(base1, base2);
+    }
+
+    // ================= EQUALS =================
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
@@ -45,7 +88,7 @@ public class Quantity<U extends IMeasurable> {
         return Objects.hash(unit.convertToBaseUnit(value));
     }
 
-    // ---------------- CONVERSION ----------------
+    // ================= CONVERSION =================
     public Quantity<U> convertTo(U targetUnit) {
         if (targetUnit == null)
             throw new IllegalArgumentException("Target unit null");
@@ -56,52 +99,45 @@ public class Quantity<U extends IMeasurable> {
         return new Quantity<>(result, targetUnit);
     }
 
-    // ---------------- ADDITION ----------------
+    // ================= ADD =================
     public Quantity<U> add(Quantity<U> other) {
         return add(other, this.unit);
     }
 
     public Quantity<U> add(Quantity<U> other, U targetUnit) {
-        if (other == null)
-            throw new IllegalArgumentException("Other null");
 
-        double base = unit.convertToBaseUnit(value)
-                + other.unit.convertToBaseUnit(other.value);
+        validate(other, targetUnit, true);
 
-        double result = targetUnit.convertFromBaseUnit(base);
+        double baseResult = performBaseArithmetic(other, Operation.ADD);
+        double result = targetUnit.convertFromBaseUnit(baseResult);
+
         return new Quantity<>(result, targetUnit);
     }
 
-    // ---------------- SUBTRACTION ----------------
+    // ================= SUBTRACT =================
     public Quantity<U> subtract(Quantity<U> other) {
         return subtract(other, this.unit);
     }
 
     public Quantity<U> subtract(Quantity<U> other, U targetUnit) {
-        if (other == null)
-            throw new IllegalArgumentException("Other null");
 
-        double base = unit.convertToBaseUnit(value)
-                - other.unit.convertToBaseUnit(other.value);
+        validate(other, targetUnit, true);
 
-        double result = targetUnit.convertFromBaseUnit(base);
+        double baseResult = performBaseArithmetic(other, Operation.SUBTRACT);
+        double result = targetUnit.convertFromBaseUnit(baseResult);
+
         return new Quantity<>(result, targetUnit);
     }
 
-    // ---------------- DIVISION ----------------
+    // ================= DIVIDE =================
     public double divide(Quantity<U> other) {
-        if (other == null)
-            throw new IllegalArgumentException("Other null");
 
-        double base1 = unit.convertToBaseUnit(value);
-        double base2 = other.unit.convertToBaseUnit(other.value);
+        validate(other, null, false);
 
-        if (base2 == 0)
-            throw new ArithmeticException("Divide by zero");
-
-        return base1 / base2;
+        return performBaseArithmetic(other, Operation.DIVIDE);
     }
 
+    // ================= TOSTRING =================
     @Override
     public String toString() {
         return value + " " + unit.getUnitName();
