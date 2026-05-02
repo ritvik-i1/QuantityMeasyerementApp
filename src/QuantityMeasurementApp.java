@@ -40,23 +40,29 @@ public class QuantityMeasurementApp {
             return unit.toFeet(value);
         }
 
-        // 🔥 UC6: Addition (instance method)
+        // 🔥 UC6 (existing)
         public QuantityLength add(QuantityLength other) {
-            if (other == null)
-                throw new IllegalArgumentException("Other quantity cannot be null");
-
-            // Convert both to base unit
-            double sumFeet = this.toFeet() + other.toFeet();
-
-            // Convert back to THIS unit (first operand rule)
-            double resultValue = unit.fromFeet(sumFeet);
-
-            return new QuantityLength(resultValue, this.unit);
+            return add(this, other, this.unit);
         }
 
-        // 🔥 Static version (flexible API)
-        public static QuantityLength add(QuantityLength q1, QuantityLength q2) {
-            return q1.add(q2);
+        // 🔥 UC7 (NEW: explicit target unit)
+        public static QuantityLength add(QuantityLength q1,
+                                         QuantityLength q2,
+                                         LengthUnit targetUnit) {
+
+            if (q1 == null || q2 == null)
+                throw new IllegalArgumentException("Operands cannot be null");
+
+            if (targetUnit == null)
+                throw new IllegalArgumentException("Target unit cannot be null");
+
+            // Convert both to base unit
+            double sumFeet = q1.toFeet() + q2.toFeet();
+
+            // Convert to target unit
+            double resultValue = targetUnit.fromFeet(sumFeet);
+
+            return new QuantityLength(resultValue, targetUnit);
         }
 
         @Override
@@ -83,19 +89,22 @@ public class QuantityMeasurementApp {
     // Demo
     public static void main(String[] args) {
 
-        QuantityLength f = new QuantityLength(1.0, LengthUnit.FEET);
-        QuantityLength i = new QuantityLength(12.0, LengthUnit.INCHES);
+        var f = new QuantityLength(1.0, LengthUnit.FEET);
+        var i = new QuantityLength(12.0, LengthUnit.INCHES);
 
-        System.out.println("1 ft + 12 in = " + f.add(i));
+        System.out.println("Feet target: " +
+                QuantityLength.add(f, i, LengthUnit.FEET));
 
-        QuantityLength y = new QuantityLength(1.0, LengthUnit.YARDS);
-        QuantityLength f2 = new QuantityLength(3.0, LengthUnit.FEET);
+        System.out.println("Inches target: " +
+                QuantityLength.add(f, i, LengthUnit.INCHES));
 
-        System.out.println("1 yard + 3 ft = " + y.add(f2));
+        System.out.println("Yards target: " +
+                QuantityLength.add(f, i, LengthUnit.YARDS));
 
-        QuantityLength cm = new QuantityLength(2.54, LengthUnit.CENTIMETERS);
-        QuantityLength inch = new QuantityLength(1.0, LengthUnit.INCHES);
+        var cm = new QuantityLength(2.54, LengthUnit.CENTIMETERS);
+        var inch = new QuantityLength(1.0, LengthUnit.INCHES);
 
-        System.out.println("2.54 cm + 1 in = " + cm.add(inch));
+        System.out.println("CM target: " +
+                QuantityLength.add(cm, inch, LengthUnit.CENTIMETERS));
     }
 }
