@@ -3,89 +3,82 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class QuantityMeasurementAppTest {
 
-    @Test
-    void testEquality_YardToYard_SameValue() {
-        var q1 = new QuantityMeasurementApp.QuantityLength(1.0,
-                QuantityMeasurementApp.LengthUnit.YARDS);
-        var q2 = new QuantityMeasurementApp.QuantityLength(1.0,
-                QuantityMeasurementApp.LengthUnit.YARDS);
+    private static final double EPS = 1e-6;
 
-        assertTrue(q1.equals(q2));
+    @Test
+    void testConversion_FeetToInches() {
+        assertEquals(12.0,
+                QuantityMeasurementApp.convert(1.0,
+                        QuantityMeasurementApp.LengthUnit.FEET,
+                        QuantityMeasurementApp.LengthUnit.INCHES), EPS);
     }
 
     @Test
-    void testEquality_YardToFeet_EquivalentValue() {
-        var q1 = new QuantityMeasurementApp.QuantityLength(1.0,
-                QuantityMeasurementApp.LengthUnit.YARDS);
-        var q2 = new QuantityMeasurementApp.QuantityLength(3.0,
+    void testConversion_InchesToFeet() {
+        assertEquals(2.0,
+                QuantityMeasurementApp.convert(24.0,
+                        QuantityMeasurementApp.LengthUnit.INCHES,
+                        QuantityMeasurementApp.LengthUnit.FEET), EPS);
+    }
+
+    @Test
+    void testConversion_YardsToInches() {
+        assertEquals(36.0,
+                QuantityMeasurementApp.convert(1.0,
+                        QuantityMeasurementApp.LengthUnit.YARDS,
+                        QuantityMeasurementApp.LengthUnit.INCHES), EPS);
+    }
+
+    @Test
+    void testConversion_CentimeterToInch() {
+        assertEquals(1.0,
+                QuantityMeasurementApp.convert(2.54,
+                        QuantityMeasurementApp.LengthUnit.CENTIMETERS,
+                        QuantityMeasurementApp.LengthUnit.INCHES), EPS);
+    }
+
+    @Test
+    void testConversion_RoundTrip() {
+        double v = 5.0;
+
+        double result = QuantityMeasurementApp.convert(
+                QuantityMeasurementApp.convert(v,
+                        QuantityMeasurementApp.LengthUnit.FEET,
+                        QuantityMeasurementApp.LengthUnit.INCHES),
+                QuantityMeasurementApp.LengthUnit.INCHES,
                 QuantityMeasurementApp.LengthUnit.FEET);
 
-        assertTrue(q1.equals(q2));
+        assertEquals(v, result, EPS);
     }
 
     @Test
-    void testEquality_YardToInches_EquivalentValue() {
-        var q1 = new QuantityMeasurementApp.QuantityLength(1.0,
-                QuantityMeasurementApp.LengthUnit.YARDS);
-        var q2 = new QuantityMeasurementApp.QuantityLength(36.0,
-                QuantityMeasurementApp.LengthUnit.INCH);
-
-        assertTrue(q1.equals(q2));
+    void testConversion_Zero() {
+        assertEquals(0.0,
+                QuantityMeasurementApp.convert(0.0,
+                        QuantityMeasurementApp.LengthUnit.FEET,
+                        QuantityMeasurementApp.LengthUnit.INCHES), EPS);
     }
 
     @Test
-    void testEquality_CentimeterToInch_EquivalentValue() {
-        var q1 = new QuantityMeasurementApp.QuantityLength(1.0,
-                QuantityMeasurementApp.LengthUnit.CENTIMETERS);
-        var q2 = new QuantityMeasurementApp.QuantityLength(0.393701,
-                QuantityMeasurementApp.LengthUnit.INCH);
-
-        assertTrue(q1.equals(q2));
+    void testConversion_Negative() {
+        assertEquals(-12.0,
+                QuantityMeasurementApp.convert(-1.0,
+                        QuantityMeasurementApp.LengthUnit.FEET,
+                        QuantityMeasurementApp.LengthUnit.INCHES), EPS);
     }
 
     @Test
-    void testEquality_CentimeterToFeet_NotEqual() {
-        var q1 = new QuantityMeasurementApp.QuantityLength(1.0,
-                QuantityMeasurementApp.LengthUnit.CENTIMETERS);
-        var q2 = new QuantityMeasurementApp.QuantityLength(1.0,
-                QuantityMeasurementApp.LengthUnit.FEET);
-
-        assertFalse(q1.equals(q2));
-    }
-
-    @Test
-    void testEquality_MultiUnit_Transitive() {
-        var yard = new QuantityMeasurementApp.QuantityLength(1.0,
-                QuantityMeasurementApp.LengthUnit.YARDS);
-        var feet = new QuantityMeasurementApp.QuantityLength(3.0,
-                QuantityMeasurementApp.LengthUnit.FEET);
-        var inch = new QuantityMeasurementApp.QuantityLength(36.0,
-                QuantityMeasurementApp.LengthUnit.INCH);
-
-        assertTrue(yard.equals(feet));
-        assertTrue(feet.equals(inch));
-        assertTrue(yard.equals(inch));
-    }
-
-    @Test
-    void testEquality_SameReference() {
-        var q = new QuantityMeasurementApp.QuantityLength(2.0,
-                QuantityMeasurementApp.LengthUnit.YARDS);
-
-        assertTrue(q.equals(q));
-    }
-
-    @Test
-    void testEquality_NullComparison() {
-        var q = new QuantityMeasurementApp.QuantityLength(1.0,
-                QuantityMeasurementApp.LengthUnit.FEET);
-
-        assertFalse(q.equals(null));
-    }
-
-    @Test
-    void testEquality_InvalidUnit() {
+    void testConversion_InvalidUnit() {
         assertThrows(IllegalArgumentException.class, () ->
-                new QuantityMeasurementApp.QuantityLength(1.0, null));
+                QuantityMeasurementApp.convert(1.0, null,
+                        QuantityMeasurementApp.LengthUnit.FEET));
+    }
+
+    @Test
+    void testConversion_NaN() {
+        assertThrows(IllegalArgumentException.class, () ->
+                QuantityMeasurementApp.convert(Double.NaN,
+                        QuantityMeasurementApp.LengthUnit.FEET,
+                        QuantityMeasurementApp.LengthUnit.INCHES));
     }
 }
