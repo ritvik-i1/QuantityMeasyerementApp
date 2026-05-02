@@ -1,67 +1,83 @@
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 public class QuantityMeasurementAppTest {
 
     private static final double EPS = 1e-6;
 
-    @Test
-    void testLengthEquality() {
-        var a = new QuantityMeasurementApp.Quantity<>(1.0, LengthUnit.FEET);
-        var b = new QuantityMeasurementApp.Quantity<>(12.0, LengthUnit.INCHES);
+    // ---------------- EQUALITY ----------------
 
-        assertTrue(a.equals(b));
+    @Test
+    void testEquality_LitreToMillilitre() {
+        Quantity<VolumeUnit> v1 = new Quantity<>(1.0, VolumeUnit.LITRE);
+        Quantity<VolumeUnit> v2 = new Quantity<>(1000.0, VolumeUnit.MILLILITRE);
+
+        assertTrue(v1.equals(v2));
     }
 
     @Test
-    void testWeightEquality() {
-        var a = new QuantityMeasurementApp.Quantity<>(1.0, WeightUnit.KILOGRAM);
-        var b = new QuantityMeasurementApp.Quantity<>(1000.0, WeightUnit.GRAM);
+    void testEquality_GallonToLitre() {
+        Quantity<VolumeUnit> v1 = new Quantity<>(1.0, VolumeUnit.GALLON);
+        Quantity<VolumeUnit> v2 = new Quantity<>(3.78541, VolumeUnit.LITRE);
 
-        assertTrue(a.equals(b));
+        assertTrue(v1.equals(v2));
+    }
+
+    // ---------------- CONVERSION ----------------
+
+    @Test
+    void testConversion_LitreToMillilitre() {
+        Quantity<VolumeUnit> v = new Quantity<>(1.0, VolumeUnit.LITRE);
+
+        // ✅ FIX: use getValue()
+        assertEquals(1000.0,
+                v.convertTo(VolumeUnit.MILLILITRE).getValue(),
+                EPS);
     }
 
     @Test
-    void testLengthConversion() {
-        var a = new QuantityMeasurementApp.Quantity<>(1.0, LengthUnit.FEET);
-        var result = a.convertTo(LengthUnit.INCHES);
+    void testConversion_GallonToLitre() {
+        Quantity<VolumeUnit> v = new Quantity<>(1.0, VolumeUnit.GALLON);
 
-        assertEquals(12.0, result.getValue(), EPS);
+        assertEquals(3.78541,
+                v.convertTo(VolumeUnit.LITRE).getValue(),
+                1e-4);
     }
 
-    @Test
-    void testWeightConversion() {
-        var a = new QuantityMeasurementApp.Quantity<>(1.0, WeightUnit.KILOGRAM);
-        var result = a.convertTo(WeightUnit.GRAM);
-
-        assertEquals(1000.0, result.getValue(), EPS);
-    }
+    // ---------------- ADDITION ----------------
 
     @Test
-    void testLengthAddition() {
-        var a = new QuantityMeasurementApp.Quantity<>(1.0, LengthUnit.FEET);
-        var b = new QuantityMeasurementApp.Quantity<>(12.0, LengthUnit.INCHES);
+    void testAddition_LitrePlusMillilitre() {
+        Quantity<VolumeUnit> v1 = new Quantity<>(1.0, VolumeUnit.LITRE);
+        Quantity<VolumeUnit> v2 = new Quantity<>(1000.0, VolumeUnit.MILLILITRE);
 
-        var result = a.add(b, LengthUnit.FEET);
+        Quantity<VolumeUnit> result = v1.add(v2, VolumeUnit.LITRE);
 
         assertEquals(2.0, result.getValue(), EPS);
     }
 
     @Test
-    void testWeightAddition() {
-        var a = new QuantityMeasurementApp.Quantity<>(1.0, WeightUnit.KILOGRAM);
-        var b = new QuantityMeasurementApp.Quantity<>(1000.0, WeightUnit.GRAM);
+    void testAddition_GallonPlusLitre() {
+        Quantity<VolumeUnit> v1 = new Quantity<>(1.0, VolumeUnit.GALLON);
+        Quantity<VolumeUnit> v2 = new Quantity<>(3.78541, VolumeUnit.LITRE);
 
-        var result = a.add(b, WeightUnit.KILOGRAM);
+        Quantity<VolumeUnit> result = v1.add(v2, VolumeUnit.GALLON);
 
-        assertEquals(2.0, result.getValue(), EPS);
+        assertEquals(2.0, result.getValue(), 1e-4);
+    }
+
+    // ---------------- EDGE CASES ----------------
+
+    @Test
+    void testNullUnit() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new Quantity<>(1.0, null));
     }
 
     @Test
-    void testCrossCategory_NotEqual() {
-        var length = new QuantityMeasurementApp.Quantity<>(1.0, LengthUnit.FEET);
-        var weight = new QuantityMeasurementApp.Quantity<>(1.0, WeightUnit.KILOGRAM);
+    void testZeroValue() {
+        Quantity<VolumeUnit> v = new Quantity<>(0.0, VolumeUnit.LITRE);
 
-        assertFalse(length.equals(weight));
+        assertEquals(0.0, v.getValue(), EPS);
     }
 }

@@ -1,91 +1,29 @@
 public class QuantityMeasurementApp {
 
-    public static class Quantity<U extends IMeasurable> {
-
-        private final double value;
-        private final U unit;
-
-        public Quantity(double value, U unit) {
-            if (unit == null)
-                throw new IllegalArgumentException("Unit cannot be null");
-
-            if (!Double.isFinite(value))
-                throw new IllegalArgumentException("Invalid value");
-
-            this.value = value;
-            this.unit = unit;
-        }
-
-        public double getValue() {
-            return value;
-        }
-
-        public U getUnit() {
-            return unit;
-        }
-
-        public double toBaseUnit() {
-            return unit.convertToBaseUnit(value);
-        }
-
-        public Quantity<U> convertTo(U targetUnit) {
-            double base = toBaseUnit();
-            double converted = targetUnit.convertFromBaseUnit(base);
-            return new Quantity<>(converted, targetUnit);
-        }
-
-        public Quantity<U> add(Quantity<U> other) {
-            return add(other, this.unit);
-        }
-
-        public Quantity<U> add(Quantity<U> other, U targetUnit) {
-            double sum = this.toBaseUnit() + other.toBaseUnit();
-            double result = targetUnit.convertFromBaseUnit(sum);
-            return new Quantity<>(result, targetUnit);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) return true;
-            if (obj == null || getClass() != obj.getClass()) return false;
-
-            Quantity<?> other = (Quantity<?>) obj;
-
-            // ❗ prevent cross-category comparison
-            if (!this.unit.getClass().equals(other.unit.getClass()))
-                return false;
-
-            return Math.abs(this.toBaseUnit() - other.toBaseUnit()) < 1e-6;
-        }
-
-        @Override
-        public int hashCode() {
-            return Double.hashCode(toBaseUnit());
-        }
-
-        @Override
-        public String toString() {
-            return value + " " + unit.getUnitName();
-        }
-    }
-
-    // 🔥 MAIN DEMO
     public static void main(String[] args) {
 
-        // Length
-        Quantity<LengthUnit> l1 = new Quantity<>(1.0, LengthUnit.FEET);
-        Quantity<LengthUnit> l2 = new Quantity<>(12.0, LengthUnit.INCHES);
+        // -------- VOLUME (UC11) --------
+        Quantity<VolumeUnit> v1 = new Quantity<>(1.0, VolumeUnit.LITRE);
+        Quantity<VolumeUnit> v2 = new Quantity<>(1000.0, VolumeUnit.MILLILITRE);
+        Quantity<VolumeUnit> v3 = new Quantity<>(1.0, VolumeUnit.GALLON);
 
-        System.out.println("Length Equal: " + l1.equals(l2));
-        System.out.println("Convert: " + l1.convertTo(LengthUnit.INCHES));
-        System.out.println("Add: " + l1.add(l2, LengthUnit.FEET));
+        // Equality
+        System.out.println("1L == 1000mL: " + v1.equals(v2));
+        System.out.println("1 Gallon == 3.78541L: " +
+                v3.equals(new Quantity<>(3.78541, VolumeUnit.LITRE)));
 
-        // Weight
-        Quantity<WeightUnit> w1 = new Quantity<>(1.0, WeightUnit.KILOGRAM);
-        Quantity<WeightUnit> w2 = new Quantity<>(1000.0, WeightUnit.GRAM);
+        // Conversion
+        System.out.println("1L to mL: " + v1.convertTo(VolumeUnit.MILLILITRE));
+        System.out.println("1 Gallon to L: " + v3.convertTo(VolumeUnit.LITRE));
 
-        System.out.println("Weight Equal: " + w1.equals(w2));
-        System.out.println("Convert: " + w1.convertTo(WeightUnit.GRAM));
-        System.out.println("Add: " + w1.add(w2, WeightUnit.KILOGRAM));
+        // Addition
+        System.out.println("1L + 1000mL (L): " +
+                v1.add(v2, VolumeUnit.LITRE));
+
+        System.out.println("1L + 1000mL (mL): " +
+                v1.add(v2, VolumeUnit.MILLILITRE));
+
+        System.out.println("1 Gallon + 3.78541L (Gallon): " +
+                v3.add(new Quantity<>(3.78541, VolumeUnit.LITRE), VolumeUnit.GALLON));
     }
 }

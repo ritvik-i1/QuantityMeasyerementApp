@@ -1,28 +1,32 @@
-public enum WeightUnit implements IMeasurable {
+public enum VolumeUnit implements IMeasurable {
 
-    KILOGRAM(1.0),
-    GRAM(0.001),
-    POUND(0.453592);
+    LITRE(1.0),
+    MILLILITRE(0.001),
+    GALLON(3.78541);
 
     private final double factor;
 
-    WeightUnit(double factor) {
+    VolumeUnit(double factor) {
         this.factor = factor;
     }
 
+    @Override
     public double getConversionFactor() {
         return factor;
     }
 
+    @Override
     public double convertToBaseUnit(double value) {
         return value * factor;
     }
 
+    @Override
     public double convertFromBaseUnit(double baseValue) {
         return baseValue / factor;
     }
 
+    @Override
     public String getUnitName() {
-        return name();
+        return this.name();
     }
 }
